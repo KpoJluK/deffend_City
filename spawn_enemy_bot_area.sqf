@@ -1,10 +1,10 @@
 /*
 [
-	[1943.007,2312.045,0],	// _pos_spawn
+	[1943.007,2312.045,0],	// массив координатов цде будет центр здания
 
-	EAST,	// _side_bot
+	EAST,	// сторона ботов можнт быть: EAST, WEAST, independent
 
-	["CPC_ME_O_KAM_soldier_Medic", // _arry_class_name_bot
+	["CPC_ME_O_KAM_soldier_Medic", // массив класс наймов ботов которые будут патрулировать зону
 "CPC_ME_O_KAM_soldier_l1a1",
 "CPC_ME_O_KAM_soldier_AA",
 "CPC_ME_O_KAM_soldier_TL",
@@ -12,58 +12,58 @@
 "CPC_ME_O_KAM_soldier_AR",
 "CPC_ME_O_KAM_soldier_LAT"],
 
-	["VTN_TOYOTA_KADDB",	// _arry_class_name_vehicle_track
+	["VTN_TOYOTA_KADDB",	// массив класс неймов легких машин которые будут патрулировать зону
 "VTN_TOYOTA_KADDB_NSVS",
 "CPC_ME_O_KAM_uaz_ags"],
 
-	["CPC_ME_O_KAM_BRDM2", // _arry_class_name_vehicle
+	["CPC_ME_O_KAM_BRDM2", // массив тяжолой техники кторая будет патрулировать зону
 "CPC_ME_O_KAM_BTR70",
 "CPC_ME_O_KAM_BMP1",
 "CPC_ME_O_KAM_T72B"],
 
-	["CPC_ME_O_KAM_ZSU",	// _arry_class_name_PVO
+	["CPC_ME_O_KAM_ZSU",	// массив самоходных зенитныйх установок кторая будет патрулировать зону
 "CPC_ME_O_KAM_ural_Zu23"],
 
-	["CPC_ME_O_KAM_uh1h_gunship", // _arry_class_name_heli
+	["CPC_ME_O_KAM_uh1h_gunship", // массив вертолетов кторая будет патрулировать зону
 "CPC_ME_O_KAM_Mi24D_Early"],
 
 	[
-		"CPC_ME_O_KAM_DSHKM",	// _arry_class_name_statica
+		"CPC_ME_O_KAM_DSHKM",	// массив статичного вооружения кторая будет размещена в зоне
 "CPC_ME_O_KAM_ZU23",
 "CPC_ME_O_KAM_2b14_82mm",
 "CPC_ME_O_KAM_Igla_AA_pod"],
 
-	300, // _radius_deploy_statica
+	300, // радиус (от центра) размещения статичных орудий(м)
 
-	3, // _count_stacika
+	3, // количество статичных орудий
 
-	2,	// _count_vehicle_track
+	2,	// количество легких машин которые будут патрулировать зону
 
-	2,	// _count_vehicle
+	2,	// количество тяжолой техники которая будует патрулировать зону
 
-	2,	// _count_vehicle_pvo
+	2,	// количество самоходных зенитныйх установок которые будут патрулировать зону
 
-	1,	//	_count_vehicle_heli
+	1,	//	количество вертолетов которые будут патрулировать зону
 
-	1,	// _count_patrul_bot_grup
+	4,	// количество групп ботов которые будет охренять зону
 
-	1,	//	_count_bot_in_grup
+	4,	//	количество ботов в группах которые будут охранять зону
 
-	30,	// _chanse_spawn_in_bilding (from 0 to 100)
+	30,	// шанс появления бота в здании(на крыше) в % от 0 до 100
 
-	2000, // _radius_activation
+	2000, // радиус активации игроком
 
-	300,	// _radius_patroul_bot
+	300,	// радиус патрулирования ботов
 
-	500,	// _radius_deploy_car_vehicle
+	500,	// радиус размещения легких машин которые будут патрулировать зону(чем больше машин тем больше зону лучше сделать)
 
-	600,	// _radius_patroul_bot_vehicle
+	600,	// радиус патрулирования всех машин и легких танков
 
-	1000,	// _radius_patroul_bot_heli
+	1000,	// радиус патрулирования вертолетов
 
-	true	// _delete_when_player_not_present
+	true	// удалять ли зону после активации если в зоне активации не осталось игроков
 
-] execVM "spawn_enemy_bot_area.sqf";
+] execVM "Scripts\spawn_enemy_bot_area.sqf";
 
 */
 
@@ -104,40 +104,46 @@ _player_in_area = allPlayers inAreaArray [_pos_spawn, _radius_activation, _radiu
 !isNil {_player_in_area select 0}
 };							
 
-																		// создаю группы патруля
-
 _arry_group_bot = []; // общий масив который будет содержать все юниты которые будут созданы
 
-for "_i" from 0 to _count_patrul_bot_grup do 
+
+																		// создаю группы патруля
+
+
+
+while {_count_patrul_bot_grup > 0} do
 {
 
-private _group = createGroup [_side_bot, true];
+	private _group = createGroup [_side_bot, true];
 
 
 // создаю юниты внутри групп
+		local_count_bot_in_grup = _count_bot_in_grup;
 
-for "_i" from 0 to _count_bot_in_grup do 
-{
-	_unit = _group createUnit [selectRandom _arry_class_name_bot, _pos_spawn, [], 0, "FORM"];
+		while {local_count_bot_in_grup > 0} do
+		{
+			_unit = _group createUnit [selectRandom _arry_class_name_bot, _pos_spawn, [], 0, "FORM"];
 
-	sleep 0.5;
+			sleep 0.5;
 
-	_arry_group_bot pushBack _unit;
+			_arry_group_bot pushBack _unit; // добавляю юнит в массив что бы потом все вместе удалить
+			
+			local_count_bot_in_grup = local_count_bot_in_grup - 1;
 
-	};
+		};
 
-[_group, _pos_spawn, _radius_patroul_bot] call bis_fnc_taskPatrol;
+	[_group, _pos_spawn, _radius_patroul_bot] call bis_fnc_taskPatrol;
 
+	_count_patrul_bot_grup = _count_patrul_bot_grup - 1;
 
-
-sleep 1;
+	sleep 1;
 
 };
 
 
 																	// создаю статику
 
-for "_i" from 0 to _count_stacika do 
+while {_count_stacika > 0} do 
 {
 
 	// поиск позицый
@@ -155,10 +161,13 @@ _objectsArray = [
 	["Land_BagFence_Round_F",[3.10596,-0.118164,-0.00130463],274.818,1,0,[0,0],"","",true,false], 
 	["Land_BagFence_Round_F",[0.509766,3.41699,-0.00130463],179.666,1,0,[0,-0],"","",true,false]
 ];
-[getPos (_static_weapon select 0), 0, _objectsArray, 0] call BIS_fnc_objectsMapper;
+[getPos (_static_weapon select 0), 0, _objectsArray, 0] call BIS_fnc_objectsMapper; // воссоздаю композицыю обьектов
 
 	_arry_group_bot pushBack (_static_weapon select 0);
 	_arry_group_bot pushBack (_static_weapon select 1);
+
+	_count_stacika = _count_stacika - 1;
+
 	sleep 0.5;
 };
 
@@ -166,7 +175,7 @@ _objectsArray = [
 																	// Создаю машины
 
 
-for "_i" from 0 to _count_vehicle_track do 
+while { _count_vehicle_track > 0} do
 {
 
 	// поиск позицый
@@ -178,14 +187,14 @@ for "_i" from 0 to _count_vehicle_track do
 	_arry_group_bot pushBack (_vehecle_track select 0);
 	_arry_group_bot pushBack (_vehecle_track select 1);
 	sleep 0.5;
-
+	_count_vehicle_track = _count_vehicle_track - 1;
 };
 
 
 																	// Создаю бронетехнику
 
 
-for "_i" from 0 to _count_vehicle do 
+while {_count_vehicle > 0} do
 {
 
 	// поиск позицый
@@ -197,14 +206,14 @@ for "_i" from 0 to _count_vehicle do
 	_arry_group_bot pushBack (_vehecle select 0);
 	_arry_group_bot pushBack (_vehecle select 1);
 	sleep 0.5;
-
+	_count_vehicle = _count_vehicle - 1;
 };
 
 
 
 																	// Создаю зенитки
 
-for "_i" from 0 to _count_vehicle_pvo do 
+while {_count_vehicle_pvo > 0} do
 {
 
 	// поиск позицый
@@ -216,6 +225,7 @@ for "_i" from 0 to _count_vehicle_pvo do
 	_arry_group_bot pushBack (_vehecle_pvo select 0);
 	_arry_group_bot pushBack (_vehecle_pvo select 1);
 	sleep 0.5;
+	_count_vehicle_pvo = _count_vehicle_pvo - 1;
 };
 
 
@@ -224,7 +234,7 @@ for "_i" from 0 to _count_vehicle_pvo do
 																	// Создаю вертолет
 
 
-for "_i" from 0 to _count_vehicle_heli do 
+while {_count_vehicle_heli > 0} do
 {
 	_pos_spawn_x = (_pos_spawn select 0) + selectRandom[100, 80, 60, 40, 20] + random 100;
 	_pos_spawn_y = (_pos_spawn select 1) + selectRandom[100, 80, 60, 40, 20] + random 100;
@@ -235,6 +245,7 @@ for "_i" from 0 to _count_vehicle_heli do
 	_arry_group_bot pushBack (_vehecle_heli select 0);
 	_arry_group_bot pushBack (_vehecle_heli select 1);
 	sleep 0.5;
+	_count_vehicle_heli = _count_vehicle_heli - 1;
 };
 
 
@@ -244,16 +255,16 @@ for "_i" from 0 to _count_vehicle_heli do
 
 private _group_bot_in_bilding = createGroup [_side_bot, true];
 
-// поиск зданий
+// поиск всех обьектов с класнеймом "дом"
 private _arry_bilding_from_bot = nearestObjects [_pos_spawn, ["house"], _radius_patroul_bot];
 
-// подсчет сколько найдено задний
+// подсчет сколько найдено значений
 private _count_bliding = count _arry_bilding_from_bot - 1;
 
 // если в здании есть позицыя посадить туда бота
-for "_i" from 0 to _count_bliding do 
+while {_count_bliding > 0} do
 {
-	_select_bilding_from_bot = [_arry_bilding_from_bot select _count_bliding, -1] call BIS_fnc_buildingPositions; // поиск позицый
+	_select_bilding_from_bot = [_arry_bilding_from_bot select _count_bliding, -1] call BIS_fnc_buildingPositions; // поиск позицый в заднии
 	if(isnil {_select_bilding_from_bot select 0}) then{} else{
 		private _seed = [1,101] call BIS_fnc_randomInt; // рандомное число от 0 до 100
 		if(_seed <= _chanse_spawn_in_bilding) // если рандомное число больше или равно шансу спауна спаунится бот в здании

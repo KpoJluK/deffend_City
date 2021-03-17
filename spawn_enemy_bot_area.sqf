@@ -5,36 +5,31 @@
 [
 	[1943.007,2312.045,0],	// массив координатов где будет центр здания
 
-	EAST,	// сторона ботов можнт быть: EAST, WEAST, independent
+	WEST,	// сторона ботов можнт быть: EAST, WEAST, independent
 
-	["CPC_ME_O_KAM_soldier_Medic", // массив класс наймов ботов которые будут патрулировать зону
-"CPC_ME_O_KAM_soldier_l1a1",
-"CPC_ME_O_KAM_soldier_AA",
-"CPC_ME_O_KAM_soldier_TL",
-"CPC_ME_O_KAM_soldier_AT",
-"CPC_ME_O_KAM_soldier_AR",
-"CPC_ME_O_KAM_soldier_LAT"],
+	["B_medic_F", // массив класс наймов ботов которые будут патрулировать зону
+"B_Soldier_SL_F",
+"B_soldier_AT_F",
+"B_soldier_AA_F",
+"B_soldier_M_F"],
 
-	["VTN_TOYOTA_KADDB",	// массив класс неймов легких машин которые будут патрулировать зону
-"VTN_TOYOTA_KADDB_NSVS",
-"CPC_ME_O_KAM_uaz_ags"],
+	["B_MRAP_01_hmg_F",	// массив класс неймов легких машин которые будут патрулировать зону
+"B_MRAP_01_gmg_F"],
 
-	["CPC_ME_O_KAM_BRDM2", // массив тяжолой техники кторая будет патрулировать зону
-"CPC_ME_O_KAM_BTR70",
-"CPC_ME_O_KAM_BMP1",
-"CPC_ME_O_KAM_T72B"],
+	["B_MBT_01_cannon_F", // массив тяжолой техники кторая будет патрулировать зону
+"B_MBT_01_TUSK_F",
+"B_APC_Wheeled_01_cannon_F",
+"B_APC_Tracked_01_CRV_F"],
 
-	["CPC_ME_O_KAM_ZSU",	// массив самоходных зенитныйх установок кторая будет патрулировать зону
-"CPC_ME_O_KAM_ural_Zu23"],
+	["B_APC_Tracked_01_AA_F"	// массив самоходных зенитныйх установок кторая будет патрулировать зону
+	],
 
-	["CPC_ME_O_KAM_uh1h_gunship", // массив вертолетов кторая будет патрулировать зону
-"CPC_ME_O_KAM_Mi24D_Early"],
+	["B_Heli_Attack_01_dynamicLoadout_F", // массив вертолетов кторая будет патрулировать зону
+"B_Heli_Transport_01_F"],
 
-	[
-		"CPC_ME_O_KAM_DSHKM",	// массив статичного вооружения кторая будет размещена в зоне
-"CPC_ME_O_KAM_ZU23",
-"CPC_ME_O_KAM_2b14_82mm",
-"CPC_ME_O_KAM_Igla_AA_pod"],
+	["B_HMG_01_high_F",	// массив статичного вооружения кторая будет размещена в зоне
+"B_GMG_01_high_F",
+"B_Mortar_01_F"],
 
 	300, // радиус (от центра) размещения статичных орудий(м)
 
@@ -66,7 +61,7 @@
 
 	true	// удалять ли зону после активации если в зоне активации не осталось игроков
 
-] execVM "Scripts\spawn_enemy_bot_area.sqf";
+] execVM "spawn_enemy_bot_area.sqf";
 
 */
 

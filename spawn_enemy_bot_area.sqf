@@ -3,8 +3,8 @@
 /*
 [
 	[1943.007,2312.045,0],	// массив координатов где будет центр здания
-
 	WEST,	// сторона ботов можнт быть: EAST, WEST, independent
+	0.8, // уровень скила ботов
 	[
 		"B_medic_F", // массив класс наймов ботов которые будут патрулировать зону
 		"B_Soldier_SL_F",
@@ -61,6 +61,7 @@
 params [
 	["_pos_spawn", [1841.75,2224.26,0]],
 	["_side_bot", WEST],
+	["_bot_skill", 0.8],
 	["_arry_class_name_bot",	
 		[
 			"B_medic_F",
@@ -152,6 +153,8 @@ while {_count_patrul_bot_grup > 0} do
 		{
 			_unit = _group createUnit [selectRandom _arry_class_name_bot, _pos_spawn, [], 0, "FORM"];
 
+			_unit setSkill _bot_skill;
+
 			sleep 0.5;
 
 			_arry_group_bot pushBack _unit; // добавляю юнит в массив что бы потом все вместе удалить
@@ -178,6 +181,9 @@ while {_count_stacika > 0} do
 	private _pos_from_statica = [_pos_spawn, 15, 300, 5, 0, 0.4, 0] call BIS_fnc_findSafePos;
 	// спаун статики
 	_static_weapon = [_pos_from_statica, 180, selectRandom _arry_class_name_statica, _side_bot] call BIS_fnc_spawnVehicle;
+	{
+		_x setSkill _bot_skill 
+	} forEach (_static_weapon select 1);
 	// спаун мешков с песком вокруг
 
 _objectsArray = [
@@ -210,6 +216,9 @@ while { _count_vehicle_track > 0} do
 	private _pos_from_vehicle_track = [_pos_spawn, 15, _radius_deploy_car_vehicle, 6, 0, 0.5, 0] call BIS_fnc_findSafePos;
 	// спаун статики
 	_vehecle_track = [_pos_from_vehicle_track, 180, selectRandom _arry_class_name_vehicle_track, _side_bot] call BIS_fnc_spawnVehicle;
+	{
+		_x setSkill _bot_skill 
+	} forEach (_vehecle_track select 1);
 	// задать патруль технике
 	[_vehecle_track select 2, _pos_spawn, _radius_patroul_bot_vehicle] call bis_fnc_taskPatrol;
 	_arry_group_bot pushBack (_vehecle_track select 0);
@@ -229,6 +238,9 @@ while {_count_vehicle > 0} do
 	private _pos_from_vehicle = [_pos_spawn, 15, _radius_deploy_car_vehicle, 10, 0, 0.5, 0] call BIS_fnc_findSafePos;
 	// спаун статики
 	_vehecle = [_pos_from_vehicle, 180, selectRandom _arry_class_name_vehicle, _side_bot] call BIS_fnc_spawnVehicle;
+	{
+		_x setSkill _bot_skill 
+	} forEach (_vehecle select 1);
 	// задать патруль технике
 	[_vehecle select 2, _pos_spawn, _radius_patroul_bot_vehicle] call bis_fnc_taskPatrol;
 	_arry_group_bot pushBack (_vehecle select 0);
@@ -248,6 +260,9 @@ while {_count_vehicle_pvo > 0} do
 	private _pos_from_vehicle_pvo = [_pos_spawn, 15, _radius_deploy_car_vehicle, 8, 0, 0.5, 0] call BIS_fnc_findSafePos;
 	// спаун статики
 	_vehecle_pvo = [_pos_from_vehicle_pvo, 180, selectRandom _arry_class_name_PVO, _side_bot] call BIS_fnc_spawnVehicle;
+	{
+		_x setSkill _bot_skill 
+	} forEach (_vehecle_pvo select 1);
 	// задать патруль технике
 	[_vehecle_pvo select 2, _pos_spawn, _radius_patroul_bot] call bis_fnc_taskPatrol;
 	_arry_group_bot pushBack (_vehecle_pvo select 0);
@@ -268,6 +283,9 @@ while {_count_vehicle_heli > 0} do
 	_pos_spawn_y = (_pos_spawn select 1) + selectRandom[100, 80, 60, 40, 20] + random 100;
 	// спаун статики
 	_vehecle_heli = [[_pos_spawn_x, _pos_spawn_y, _pos_spawn select 2], 180, selectRandom _arry_class_name_heli, _side_bot] call BIS_fnc_spawnVehicle;
+	{
+		_x setSkill _bot_skill 
+	} forEach (_vehecle_heli select 1);
 	// задать патруль технике
 	[_vehecle_heli select 2, _pos_spawn, _radius_patroul_bot] call bis_fnc_taskPatrol;
 	_arry_group_bot pushBack (_vehecle_heli select 0);
@@ -300,6 +318,7 @@ if(_spawn_bot_in_roof)then{
 			then {
 			_last_pos_bilding = count _select_bilding_from_bot; // подсчет количество позицый в выбраном здании
 			_unit = _group_bot_in_bilding createUnit [selectRandom _arry_class_name_bot, _select_bilding_from_bot select _last_pos_bilding - 1, [], 0, "FORM"]; //спаун бота
+			_unit setSkill _bot_skill;
 			_unit disableAI "PATH";// отключить боту перемещение
 			_arry_group_bot pushBack _unit; 
 				};
@@ -335,6 +354,7 @@ if(_spawn_bot_in_bilding)then{
 	if(random 100 <= _chanse_spawn_in_bilding)then 
 	{ 
 				_unit = _group_defend createUnit [selectRandom _arry_class_name_bot, ([_x] call BIS_fnc_buildingPositions) select _i, [], 0, "FORM"]; 
+				_unit setSkill _bot_skill;
 				_unit disableAi "path"; 
 				_unit setPos (([_x] call BIS_fnc_buildingPositions) select _i); 
 				_arry_group_bot pushBack _unit;
@@ -380,6 +400,3 @@ _delete_bot
 {
 	deleteVehicle _x;
 } forEach _arry_group_bot;
-
-
-

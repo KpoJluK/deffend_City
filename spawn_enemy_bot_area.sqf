@@ -67,6 +67,7 @@
 	500,	// радиус размещения легких машин которые будут патрулировать зону(чем больше машин тем больше зону лучше сделать)
 	600,	// радиус патрулирования всех машин и легких танков
 	1000,	// радиус патрулирования вертолетов
+	false, // скрывать уже появившихся ботов если нету игроков в зоне акттивации до тех пор пока они снова не зайдут в зону
 	false	// условик при котром боты будут удалены(УСЛОВИК ДОЛЖНО БЫТЬ ГЛОБАЛЬНО!!!)
 ] execVM "spawn_enemy_bot_area.sqf";
 
@@ -143,6 +144,7 @@ params [
 	["_radius_deploy_car_vehicle",200],
 	["_radius_patroul_bot_vehicle",1000],
 	["_radius_patroul_bot_heli",1500],
+	["_hide_bot",false],
 	["_delete_bot",false]
 ];
 
@@ -376,36 +378,43 @@ if(_spawn_bot_in_bilding)then{
 
 													// скрываю ботов пока игроков нету в зоне или удаляю при условии
 
-waitUntil{
-	_player_in_area = allPlayers inAreaArray [_pos_spawn, _radius_activation, _radius_activation, 0, false];
-	if(_player_in_area isEqualTo []) then{
-		for "_i" from 0 to count _arry_group_bot -1 do 
-		{
-			sleep 0.1;
-			(_arry_group_bot select _i) hideObjectGlobal true;
+if(_hide_bot)then{
+	waitUntil{
+		_player_in_area = allPlayers inAreaArray [_pos_spawn, _radius_activation, _radius_activation, 0, false];
+		if(_player_in_area isEqualTo []) then{
+			for "_i" from 0 to count _arry_group_bot -1 do 
+			{
+				sleep 0.1;
+				(_arry_group_bot select _i) hideObjectGlobal true;
+			};
+			for "_i" from 0 to count _arry_group_bot -1 do 
+			{
+				sleep 0.1;
+				(_arry_group_bot select _i) enableSimulationGlobal false;
+			};
 		};
-		for "_i" from 0 to count _arry_group_bot -1 do 
-		{
-			sleep 0.1;
-			(_arry_group_bot select _i) enableSimulationGlobal false;
+		sleep (count _arry_group_bot / 6);
+		if!(_player_in_area isEqualTo []) then{
+			for "_i" from 0 to count _arry_group_bot -1 do 
+			{
+				sleep 0.1;
+				(_arry_group_bot select _i) hideObjectGlobal false;
+			};
+			for "_i" from 0 to count _arry_group_bot -1 do 
+			{
+				sleep 0.1;
+				(_arry_group_bot select _i) enableSimulationGlobal true;
+			};
 		};
+	_delete_bot
 	};
-	sleep (count _arry_group_bot / 6);
-	if!(_player_in_area isEqualTo []) then{
-		for "_i" from 0 to count _arry_group_bot -1 do 
-		{
-			sleep 0.1;
-			(_arry_group_bot select _i) hideObjectGlobal false;
-		};
-		for "_i" from 0 to count _arry_group_bot -1 do 
-		{
-			sleep 0.1;
-			(_arry_group_bot select _i) enableSimulationGlobal true;
-		};
-	};
-_delete_bot
 };		
 							// удаляю ботов
+
+waitUntil{
+	sleep 10;
+	_delete_bot
+};
 {
 	deleteVehicle _x;
 } forEach _arry_group_bot;

@@ -149,13 +149,13 @@ params [
 ];
 
 If(_hide_bot)then{
-enableDynamicSimulationSystem true;
-"Group" setDynamicSimulationDistance _radius_activation;
-"Vehicle" setDynamicSimulationDistance _radius_activation;
-"EmptyVehicle" setDynamicSimulationDistance _radius_activation;
-"Prop" setDynamicSimulationDistance _radius_activation;
+	enableDynamicSimulationSystem true;
+	"Group" setDynamicSimulationDistance _radius_activation;
+	"Vehicle" setDynamicSimulationDistance _radius_activation;
+	"EmptyVehicle" setDynamicSimulationDistance _radius_activation;
+	"Prop" setDynamicSimulationDistance _radius_activation;
 
-"IsMoving" setDynamicSimulationDistanceCoef 2;
+	"IsMoving" setDynamicSimulationDistanceCoef 1;
 };
 
 
@@ -163,8 +163,8 @@ enableDynamicSimulationSystem true;
 
 waitUntil{
 sleep 5;
-_player_in_area = allPlayers inAreaArray [_pos_spawn, _radius_activation, _radius_activation, 0, false];
-!isNil {_player_in_area select 0}
+	_player_in_area = allPlayers inAreaArray [_pos_spawn, _radius_activation, _radius_activation, 0, false];
+	!isNil {_player_in_area select 0}
 };							
 
 _arry_group_bot = []; // общий масив который будет содержать все юниты которые будут созданы

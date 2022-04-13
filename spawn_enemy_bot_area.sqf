@@ -67,7 +67,7 @@
 	500,	// радиус размещения легких машин которые будут патрулировать зону(чем больше машин тем больше зону лучше сделать)
 	600,	// радиус патрулирования всех машин и легких танков
 	1000,	// радиус патрулирования вертолетов
-	false, // скрывать уже появившихся ботов, если нету игроков в зоне активации до тех пор пока они снова не зайдут в зону
+	true, // включать ли ботам динамическую симуляцию?
 	false	// условик при котром боты будут удалены(УСЛОВИК ДОЛЖНО БЫТЬ ГЛОБАЛЬНО!!!)
 ] execVM "spawn_enemy_bot_area.sqf";
 
@@ -144,9 +144,19 @@ params [
 	["_radius_deploy_car_vehicle",200],
 	["_radius_patroul_bot_vehicle",1000],
 	["_radius_patroul_bot_heli",1500],
-	["_hide_bot",false],
+	["_hide_bot",true],
 	["_delete_bot",false]
 ];
+
+If(_hide_bot)then{
+enableDynamicSimulationSystem true;
+"Group" setDynamicSimulationDistance _radius_activation;
+"Vehicle" setDynamicSimulationDistance _radius_activation;
+"EmptyVehicle" setDynamicSimulationDistance _radius_activation;
+"Prop" setDynamicSimulationDistance _radius_activation;
+
+"IsMoving" setDynamicSimulationDistanceCoef 2;
+};
 
 
 																		// жду появления игрока
@@ -187,11 +197,13 @@ while {_count_patrul_bot_grup > 0} do
 
 	[_group, _pos_spawn, _radius_patroul_bot] call bis_fnc_taskPatrol;
 
+
 	_count_patrul_bot_grup = _count_patrul_bot_grup - 1;
 
 	sleep 1;
 
 };
+
 
 
 																	// создаю статику
@@ -203,6 +215,7 @@ while {_count_stacika > 0} do
 	private _pos_from_statica = [_pos_spawn, 15, 300, 5, 0, 0.4, 0] call BIS_fnc_findSafePos;
 	// спаун статики
 	_static_weapon = [_pos_from_statica, 180, selectRandom _arry_class_name_statica, _side_bot] call BIS_fnc_spawnVehicle;
+
 	// спаун мешков с песком вокруг
 
 _objectsArray = [
@@ -309,6 +322,7 @@ if(_spawn_bot_in_roof)then{
 
 	private _group_bot_in_bilding = createGroup [_side_bot, true];
 
+
 	// поиск всех обьектов с класнеймом "дом"
 	private _arry_bilding_from_bot = nearestObjects [_pos_spawn, ["house"], _radius_find_bilding_from_bot];
 
@@ -333,6 +347,7 @@ if(_spawn_bot_in_roof)then{
 
 	sleep 0.1;
 	};
+
 };
 
 
@@ -350,7 +365,8 @@ if(_spawn_bot_in_bilding)then{
 	_radius_find_bilding_from_bot // радиус поиска зданий
 	]; 
 
-	private _group_defend = createGroup [_side_bot, true]; 
+	private _group_defend = createGroup [_side_bot, true];
+	
 	
 	{   
 	
@@ -375,46 +391,21 @@ if(_spawn_bot_in_bilding)then{
 	_x setSkill _bot_skill
 } forEach _arry_group_bot;
 
+If(_hide_bot)then{
+	{
+		group _X enableDynamicSimulation true
+	} forEach _arry_group_bot;
+	
+};
 
-													// скрываю ботов пока игроков нету в зоне или удаляю при условии
-
-if(_hide_bot)then{
-	waitUntil{
-		_player_in_area = allPlayers inAreaArray [_pos_spawn, _radius_activation, _radius_activation, 0, false];
-		if(_player_in_area isEqualTo []) then{
-			for "_i" from 0 to count _arry_group_bot -1 do 
-			{
-				sleep 0.1;
-				(_arry_group_bot select _i) hideObjectGlobal true;
-			};
-			for "_i" from 0 to count _arry_group_bot -1 do 
-			{
-				sleep 0.1;
-				(_arry_group_bot select _i) enableSimulationGlobal false;
-			};
-		};
-		sleep (count _arry_group_bot / 6);
-		if!(_player_in_area isEqualTo []) then{
-			for "_i" from 0 to count _arry_group_bot -1 do 
-			{
-				sleep 0.1;
-				(_arry_group_bot select _i) hideObjectGlobal false;
-			};
-			for "_i" from 0 to count _arry_group_bot -1 do 
-			{
-				sleep 0.1;
-				(_arry_group_bot select _i) enableSimulationGlobal true;
-			};
-		};
-	_delete_bot
-	};
-};		
-							// удаляю ботов
+	
+// удаляю ботов
 
 waitUntil{
-	sleep 10;
+	sleep 20;
 	_delete_bot
 };
 {
 	deleteVehicle _x;
 } forEach _arry_group_bot;
+

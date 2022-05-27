@@ -302,8 +302,8 @@ while {_count_vehicle_pvo > 0} do
 
 while {_count_vehicle_heli > 0} do
 {
-	_pos_spawn_x = (_pos_spawn select 0) + selectRandom[100, 80, 60, 40, 20] + random 100;
-	_pos_spawn_y = (_pos_spawn select 1) + selectRandom[100, 80, 60, 40, 20] + random 100;
+	_pos_spawn_x = (_pos_spawn select 0) + Random[-300,0, 300];
+	_pos_spawn_y = (_pos_spawn select 1) + Random[-300,0, 300];
 	// спаун статики
 	_vehecle_heli = [[_pos_spawn_x, _pos_spawn_y, _pos_spawn select 2], 180, selectRandom _arry_class_name_heli, _side_bot] call BIS_fnc_spawnVehicle;
 	// задать патруль технике

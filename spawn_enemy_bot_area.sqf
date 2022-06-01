@@ -5,11 +5,7 @@
 
 
 /*
-
-
 /////////// Пример вызова скрипта//////////////////////
-
-
 [
 	[1943.007,2312.045,0],	// массив координатов где будет центр здания
 	WEST,	// сторона ботов можнт быть: EAST, WEST, independent
@@ -44,6 +40,17 @@
 		"B_Heli_Transport_01_F"
 	],
 	[
+		// массив самолетов кторый будет патрулировать зону(обатить внимание в последней строке НЕ ДОЛЖНО БЫТЬ запятой!)
+		"B_Plane_CAS_01_dynamicLoadout_F",
+		"B_Plane_Fighter_01_F",
+		"B_Plane_Fighter_01_Stealth_F",
+		"O_Plane_CAS_02_dynamicLoadout_F",
+		"O_Plane_Fighter_02_F",
+		"O_Plane_Fighter_02_Stealth_F",
+		"I_Plane_Fighter_03_dynamicLoadout_F",
+		"I_Plane_Fighter_04_F"
+	],
+	[
 		// массив статичного вооружения кторая будет размещена в зоне(обатить внимание в последней строке НЕ ДОЛЖНО БЫТЬ запятой!)
 		"B_HMG_01_high_F",	
 		"B_GMG_01_high_F",
@@ -54,7 +61,8 @@
 	2,	// количество легких машин которые будут патрулировать зону
 	2,	// количество тяжолой техники которая будует патрулировать зону
 	2,	// количество самоходных зенитныйх установок которые будут патрулировать зону
-	0,	//	количество вертолетов которые будут патрулировать зону
+	2,	//	количество вертолетов которые будут патрулировать зону
+	2,	//	количество самолетов которые будут патрулировать зону
 	4,	// количество групп ботов которые будет охранять зону
 	4,	//	количество ботов в группах которые будут охранять зону
 	true,	// спаунить ли ботов на крышах домов(true - спаунить / false - не спунить)
@@ -70,9 +78,7 @@
 	true, // включать ли ботам динамическую симуляцию?
 	false	// условик при котром боты будут удалены(УСЛОВИК ДОЛЖНО БЫТЬ ГЛОБАЛЬНО!!!)
 ] execVM "spawn_enemy_bot_area.sqf";
-
 /////////////////// Конец примера вызоза скрипта!/////////////////////
-
 */
 
 
@@ -82,7 +88,7 @@
 																		// принимаю парметры
 
 params [
-	["_pos_spawn", [1841.75,2224.26,0]],
+	["_pos_spawn", getPos player],
 	["_side_bot", WEST],
 	["_bot_skill", 0.8],
 	["_arry_class_name_bot",	
@@ -119,6 +125,18 @@ params [
 			"B_Heli_Transport_01_F"
 		]
 	],
+	["_arry_class_name_plane",
+		[
+			"B_Plane_CAS_01_dynamicLoadout_F",
+			"B_Plane_Fighter_01_F",
+			"B_Plane_Fighter_01_Stealth_F",
+			"O_Plane_CAS_02_dynamicLoadout_F",
+			"O_Plane_Fighter_02_F",
+			"O_Plane_Fighter_02_Stealth_F",
+			"I_Plane_Fighter_03_dynamicLoadout_F",
+			"I_Plane_Fighter_04_F"
+		]
+	],
 	["_arry_class_name_statica",
 		[
 			"B_HMG_01_high_F",
@@ -132,6 +150,7 @@ params [
 	["_count_vehicle",1],
 	["_count_vehicle_pvo",2],
 	["_count_vehicle_heli",1],
+	["_count_vehicle_plane",1],
 	["_count_patrul_bot_grup",3],
 	["_count_bot_in_grup",4],
 	["_spawn_bot_in_roof", true],
@@ -314,6 +333,24 @@ while {_count_vehicle_heli > 0} do
 	_count_vehicle_heli = _count_vehicle_heli - 1;
 };
 
+																	// Создаю самолет
+
+
+while {_count_vehicle_plane > 0} do
+{
+	_pos_spawn_x = (_pos_spawn select 0) + Random[-1000,0, 1000];
+	_pos_spawn_y = (_pos_spawn select 1) + Random[-1000,0, 1000];
+	_pos_spawn_z = (_pos_spawn select 2) + Random[500,0, 1000];
+	// спаун статики
+	_vehecle_plane = [[_pos_spawn_x, _pos_spawn_y, _pos_spawn_z], 180, selectRandom _arry_class_name_plane, _side_bot] call BIS_fnc_spawnVehicle;
+	// задать патруль технике
+	[_vehecle_plane select 2, _pos_spawn, _radius_patroul_bot] call bis_fnc_taskPatrol;
+	_arry_group_bot pushBack (_vehecle_plane select 0);
+	_arry_group_bot append (_vehecle_plane select 1);
+	sleep 0.5;
+	_count_vehicle_plane = _count_vehicle_plane - 1;
+};
+
 
 																		// создаю группы внутри зданий(на крышах)
 
@@ -360,7 +397,7 @@ if(_spawn_bot_in_bilding)then{
 	{  
 	If(!isNil {[_x] call BIS_fnc_buildingPositions select 0}) then {_Arry_redy_bildings pushBack _x}  
 	} forEach nearestTerrainObjects [
-	_pos_spawn, //моссив координат центра поиска
+	_pos_spawn, //массив координат центра поиска
 	["house"],
 	_radius_find_bilding_from_bot // радиус поиска зданий
 	]; 
@@ -408,4 +445,3 @@ waitUntil{
 {
 	deleteVehicle _x;
 } forEach _arry_group_bot;
-
